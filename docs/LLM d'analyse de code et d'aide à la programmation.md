@@ -56,6 +56,14 @@ Ollama est un moteur pour LLM local qui permet la discussion avec, la pensée de
 
 Il existe des librairies pour faire la connexion entre une interface et Ollama, puisque Ollama dispose d'un REST API. Le but sera de configurer une fenêtre utilisant les classes disponibles pour pouvoir faire office de fenêtre de discussion, essentiellement remplaçant l'interface de Ollama pour la mienne, et de rajouter la fonction de lire des fichiers via mon application. Ollama ne possède pas l'option de choisir un dossier ou sous-dossier à lire, et donc il sera mon travail (et la valeur ajouté) d'ajouter cette fonction.
 
+Cogito demeure un IA général, malgré le fait qu'il soit "optimisé pour le codage". Il va falloir le spécialiser afin qu'il reste dans le contexte d'un aide pour la programmation.
+
+## MCP
+
+Un MCP, ou "Model Context Protocol", est une façon de lier l'agent à une interface de manière à personnaliser ce que le modèle à accès et concentrer ce que le LLM puisse faire. Il s'agirait d'une étape cruciale dans ce scénario puisque sinon, le LLM qui est lié à l'application n'est que celui plus général, ce qui pourrait entrainer un plus grand risque d'hallucination et un moins bon service.
+
+
+Bien que faire son propre MCP semble intéressant, la complexité d'un tel pourrait causer problème lors du développement, surtout qu'il y a déjà beaucoup de MCP basé sur la programmation qui sont disponible et qui peuvent être utilisé sur le projet. Un de ces MCP est Context7. Context7 permet aux agents d'aller chercher directement la documentation requise pour le code demander. Cet outil semble parfait pour la situation présente, et quoiqu'il serait probablement plus sage d'ajouter plus d'outils à l'arsenal, je pense que la simple inclusion de Context7 sera suffisante pour avoir un meilleur projet. 
 
 
 # Sources
@@ -101,5 +109,17 @@ _Ollama_. (2025). Ollama. https://ollama.com/blog/new-app
 _Introduction - Ollama_. (2025). Ollama.com; Ollama. https://docs.ollama.com/api/introduction
 
 Aspire. (2026). _Connect to Ollama_. Aspire. https://aspire.dev/integrations/ai/ollama/ollama-connect/
+
+*‌Introduction - Model Context Protocol*. (2025). Modelcontextprotocol.io; Model Context Protocol. https://modelcontextprotocol.io/docs/getting-started/intro
+
+alexwolfmsft. (2025, November 22). _Get started with .NET AI and MCP - .NET_. Microsoft.com. https://learn.microsoft.com/en-us/dotnet/ai/get-started-mcp
+
+KodeKloud. (2025, July 21). _MCP Tutorial: Build Your First MCP Server and Client from Scratch (Free Labs)_. YouTube. https://www.youtube.com/watch?v=RhTiAOGwbYE
+
+_6 Must-Have MCP Servers (and How to Use Them) | Docker_. (2026, January 7). Docker. https://www.docker.com/blog/top-mcp-servers-2025/
+
+_Context7 MCP Server | Docker MCP Catalog_. (2026). Docker.com. https://hub.docker.com/mcp/server/context7/overview?_gl=1
+
+upstash. (2026, February 23). _GitHub - upstash/context7: Context7 MCP Server -- Up-to-date code documentation for LLMs and AI code editors_. GitHub. https://github.com/upstash/context7
 
 ‌
