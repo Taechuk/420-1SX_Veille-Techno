@@ -54,48 +54,52 @@ Pour simplifier toute l'opération, Cogito v1 3B va être utilisé, mais je vais
 
 Ollama est un moteur pour LLM local qui permet la discussion avec, la pensée de et l'utilisation de celui-ci. Quoique Ollama supporte la lecture de fichier, je ne pense pas qu'elle supporte nativement la lecture d'un dossier complet, donc je planifie utiliser une application WPF .NET en C# afin de pouvoir implémenter une fonction pour envoyer des fichiers au LLM pour qu'il puisse les lire.
 
-
+Il existe des librairies pour faire la connexion entre une interface et Ollama, puisque Ollama dispose d'un REST API. Le but sera de configurer une fenêtre utilisant les classes disponibles pour pouvoir faire office de fenêtre de discussion, essentiellement remplaçant l'interface de Ollama pour la mienne, et de rajouter la fonction de lire des fichiers via mon application. Ollama ne possède pas l'option de choisir un dossier ou sous-dossier à lire, et donc il sera mon travail (et la valeur ajouté) d'ajouter cette fonction.
 
 
 
 # Sources
 
-[SLMs vs LLMs: What are small language models?](https://www.redhat.com/en/topics/ai/llm-vs-slm)
+_Large language models (LLMs) vs Small language models (SLMs)_. (2024). Redhat.com. https://www.redhat.com/en/topics/ai/llm-vs-slm
 
-[Small Language Models (SLM): A Comprehensive Overview](https://huggingface.co/blog/jjokah/small-language-model)
+Johnson, J. (2025, February 25). _Small Language Models (SLM): A Comprehensive Overview_. Huggingface.co. https://huggingface.co/blog/jjokah/small-language-model
 
-[The Best Open-Source Small Language Models (SLMs) in 2026](https://www.bentoml.com/blog/the-best-open-source-small-language-models)
+_The Best Open-Source Small Language Models (SLMs) in 2026_. (2019). Bentoml.com. https://www.bentoml.com/blog/the-best-open-source-small-language-models
 
-[microsoft/Phi-4-mini-instruct · Hugging Face](https://huggingface.co/microsoft/Phi-4-mini-instruct)
+_microsoft/Phi-4-mini-instruct · Hugging Face_. (2025, May). Huggingface.co. https://huggingface.co/microsoft/Phi-4-mini-instruct
 
-[Empowering innovation: The next generation of the Phi family | Microsoft Azure Blog](https://azure.microsoft.com/en-us/blog/empowering-innovation-the-next-generation-of-the-phi-family/)
+Chen, W. (2025, February 26). _Empowering innovation: The next generation of the Phi family | Microsoft Azure Blog_. Microsoft Azure Blog. https://azure.microsoft.com/en-us/blog/empowering-innovation-the-next-generation-of-the-phi-family/
 
-[Phi-4-Mini Technical Report: Compact yet Powerful Multimodal Language Models via Mixture-of-LoRAs](https://arxiv.org/pdf/2503.01743)
+Microsoft, Abouelenin, A., Ashfaq, A., Atkinson, A., Awadalla, H., Bach, N., Bao, J., Benhaim, A., Cai, M., Chaudhary, V., Chen, C., Chen, D., Chen, D., Chen, J., Chen, W., Chen, Y.-C., Chen, Y., Dai, Q., & Dai, X. (2025). _Phi-4-Mini Technical Report: Compact yet Powerful Multimodal Language Models via Mixture-of-LoRAs_. ArXiv.org. https://arxiv.org/pdf/2503.01743
 
-[Qwen/Qwen3-Coder-Next · Hugging Face](https://huggingface.co/Qwen/Qwen3-Coder-Next)
+_Qwen/Qwen3-Coder-Next · Hugging Face_. (2026, February 3). Huggingface.co. https://huggingface.co/Qwen/Qwen3-Coder-Next
 
-[QwenLM/Qwen3-Coder: Qwen3-Coder is the code version of Qwen3, the large language model series developed by Qwen team.](https://github.com/QwenLM/Qwen3-Coder)
+QwenLM. (2025). _GitHub - QwenLM/Qwen3-Coder: Qwen3-Coder is the code version of Qwen3, the large language model series developed by Qwen team, Alibaba Cloud._ GitHub. https://github.com/QwenLM/Qwen3-Coder
 
-[Introducing Cogito v1 Preview](https://www.deepcogito.com/research/cogito-v1-preview)
+_Introducing Cogito Preview_. (2025). Deepcogito.com. https://www.deepcogito.com/research/cogito-v1-preview
 
-[Ollama : cogito](https://ollama.com/library/cogito)
+_Ollama_. (2025). Ollama. https://ollama.com/library/cogito
 
-[How to Run a Local LLM: A Comprehensive Guide for 2025 | LocalLLM.in](https://localllm.in/blog/how-to-run-local-llm-guide-2025)
+LocalLLM.in. (2025, August 14). _How to Run a Local LLM: A Comprehensive Guide for 2025_. Localllm.in; LocalLLM.in. https://localllm.in/blog/how-to-run-local-llm-guide-2025
 
-[Local LLM Hardware Requirements in 2026 | AI Hub](https://overchat.ai/ai-hub/llm-hardware-requirements)
+_Local LLM Hardware Requirements in 2026 | AI Hub_. (2026). Overchat.ai. https://overchat.ai/ai-hub/llm-hardware-requirements
 
-[How to Self-Host Any LLM – Step by Step Guide](https://pinggy.io/blog/how_to_self_host_any_llm_step_by_step_guide/)
+Pinggy. (2025, September 8). _How to Self-Host Any LLM – Step by Step Guide_. Pinggy Blog. https://pinggy.io/blog/how_to_self_host_any_llm_step_by_step_guide/
 
-[Phi-4-Mini: Specifications and GPU VRAM Requirements](https://apxml.com/models/phi-4-mini)
+_Phi-4-Mini: Specifications and GPU VRAM Requirements_. (2025). Apxml.com. https://apxml.com/models/phi-4-mini
 
-[I ran 80B model on 16GB GPU - It's surprisingly good! (Qwen 3 Coder Next Review)](https://www.youtube.com/watch?v=_UEvlmNx0cs)
+Red Stapler. (2026, February 25). _I ran 80B model on 16GB GPU - It’s surprisingly good! (Qwen 3 Coder Next Review)_. YouTube. https://www.youtube.com/watch?v=_UEvlmNx0cs
 
-[unsloth/Qwen3-Coder-Next-GGUF · Hugging Face](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF)
+_unsloth/Qwen3-Coder-Next-GGUF · Hugging Face_. (2026, May 18). Huggingface.co. https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF
 
-[cortexso/cogito-v1 · Hugging Face](https://huggingface.co/cortexso/cogito-v1)
+_cortexso/cogito-v1 · Hugging Face_. (2026). Huggingface.co. https://huggingface.co/cortexso/cogito-v1
 
-[Ollama](https://ollama.com/)
+Ollama. (n.d.). _Ollama_. Ollama.com. https://ollama.com/
 
-[Introduction - Ollama](https://docs.ollama.com/api/introduction)
+_Ollama_. (2025). Ollama. https://ollama.com/blog/new-app
 
-[Connect to Ollama | Aspire](https://aspire.dev/integrations/ai/ollama/ollama-connect/)
+_Introduction - Ollama_. (2025). Ollama.com; Ollama. https://docs.ollama.com/api/introduction
+
+Aspire. (2026). _Connect to Ollama_. Aspire. https://aspire.dev/integrations/ai/ollama/ollama-connect/
+
+‌
