@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace LLM_Code_Reaper
+namespace LLM_Code_Reader
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

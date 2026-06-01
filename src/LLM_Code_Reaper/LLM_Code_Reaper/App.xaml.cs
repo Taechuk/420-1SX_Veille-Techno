@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace LLM_Code_Reaper
+namespace LLM_Code_Reader
 {
     /// <summary>
     /// Interaction logic for App.xaml
