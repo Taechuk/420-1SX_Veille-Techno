@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:LLM_Code_Reader.Views"
         xmlns:viewmodels="clr-namespace:LLM_Code_Reader.ViewModels"
         mc:Ignorable="d"
-        Title="Code Reader LLM" Height="450" Width="800">
+        Title="Code Reader LLM" Height="570" Width="900">
     <d:Window.DataContext>
         <x:Type TypeName="viewmodels:MainViewModel" />
     </d:Window.DataContext>

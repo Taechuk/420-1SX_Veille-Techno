@@ -6,10 +6,14 @@
         xmlns:local="clr-namespace:LLM_Code_Reader.Views"
         xmlns:viewmodels="clr-namespace:LLM_Code_Reader.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChatViewModel}"
         mc:Ignorable="d"
-        Height="450" Width="800">
+        Height="510" Width="900">
 
     <Grid Background="Azure">
-        <Label Content="Chat" HorizontalAlignment="Left" Margin="341,178,0,0" VerticalAlignment="Top" Height="103" Width="175"/>
+        <Label Content="Chat" HorizontalAlignment="Left" Margin="143,10,0,0" VerticalAlignment="Top" Height="393" Width="729"/>
+        <TextBox HorizontalAlignment="Left" Margin="143,408,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="611" Height="85"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="771,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="771,408,0,0" VerticalAlignment="Top" Width="101" Height="42"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="824,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
 
     </Grid>
 </UserControl>
