@@ -11,7 +11,7 @@
     <Grid Background="Azure">
         
         <!-- Section de discussion -->
-        <ListBox ItemsSource="{Binding Messages}" Margin="143,10,28,124" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox ItemsSource="{Binding Messages}" Margin="143,10,28,107" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.ScrollUnit="Pixel">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="5">
