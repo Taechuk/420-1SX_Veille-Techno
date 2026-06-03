@@ -59,18 +59,19 @@ namespace LLM_Code_Reader.ViewModels
         public async Task SendMessage(object? obj)
         {
             if (Conversation == null) return;
-            Messages.Add(new Message(_content, "User"));
+            Messages.Add(new Message(Content, "User"));
+            string sentContent = Content;
             Content = string.Empty;
             Thinking = true;
             Messages.Add(new Message("Thinking...", "System"));
 
             string response = string.Empty;
-            await foreach(var token in Conversation.SendAsync(_content))
+            await foreach(var token in Conversation.SendAsync(sentContent))
             {
                 response += token;
             }
             Messages.RemoveAt(Messages.Count - 1);
-            Messages.Add(new Message(response, "Model"));
+            Messages.Add(new Message(response, Connector.Model));
 
             Thinking = false;
 
