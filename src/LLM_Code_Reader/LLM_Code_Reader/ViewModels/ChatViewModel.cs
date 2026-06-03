@@ -1,10 +1,12 @@
 ﻿using LLM_Code_Reader.Models;
 using LLM_Code_Reader.ViewModels.Commands;
 using Microsoft.Extensions.AI;
+using Microsoft.Win32;
 using OllamaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
 
 namespace LLM_Code_Reader.ViewModels
@@ -30,7 +32,7 @@ namespace LLM_Code_Reader.ViewModels
 
         public ChatViewModel()
         {
-            ModelList = ["cogito:3b", "cogito:8b", "phi4-mini", "qwen3.5", "qwen3.6"];
+            ModelList = ["cogito:3b", "cogito:8b", "phi4-mini", "codellama", "qwen2.5-coder", "qwen3.5", "qwen3.6"];
             Messages = new ObservableCollection<Message>();
             Messages.Add(new Message("Currently Offline", "System"));
             Content = string.Empty;
@@ -38,6 +40,7 @@ namespace LLM_Code_Reader.ViewModels
 
             CommandeCreateConnector = new AsyncCommand(CreateConnector, null);
             CommandeSendMessage = new AsyncCommand(SendMessage, (obj) => { return Conversation != null && !Thinking && !Content.IsWhiteSpace(); });
+            CommandeSendFile = new AsyncCommand(SendFile, (obj) => { return Conversation != null && !Thinking; });
         }
 
         public async Task CreateConnector(object? obj)
@@ -81,7 +84,7 @@ namespace LLM_Code_Reader.ViewModels
             Messages.Add(new Message("Thinking...", "System")); //action en cours
 
             string response = string.Empty;
-            await foreach(var token in Conversation.SendAsync(sentContent)) //attente de réponse
+            await foreach (var token in Conversation.SendAsync(sentContent)) //attente de réponse
             {
                 response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
             }
@@ -92,7 +95,33 @@ namespace LLM_Code_Reader.ViewModels
 
         }
 
+        public async Task SendFile(object? obj)
+        {
+            if (Conversation == null) return;
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string fileContent = await File.ReadAllTextAsync(openFileDialog.FileName);
+
+                Messages.Add(new Message($"Fichier {openFileDialog.SafeFileName} envoyé.", "User"));
+
+                string sentContent = $"Voici le contenu du fichier {openFileDialog.SafeFileName} :\n{fileContent}"; //contenu du fichier à envoyer
+                Thinking = true; //empeche d'envoyer plusieurs messages
+                Messages.Add(new Message("Thinking...", "System")); //action en cours
+                string response = string.Empty;
+                await foreach (var token in Conversation.SendAsync(sentContent)) //attente de réponse
+                {
+                    response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                }
+                Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                Messages.Add(new Message(response, Connector.Model)); //message du bot
+                Thinking = false; //le user peut continuer
+            }
+        }
+
         public AsyncCommand CommandeCreateConnector { get; set; }
         public AsyncCommand CommandeSendMessage { get; set; }
+        public AsyncCommand CommandeSendFile { get; set; }
     }
 }

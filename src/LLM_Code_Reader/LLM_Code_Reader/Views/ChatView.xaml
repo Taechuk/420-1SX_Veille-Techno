@@ -24,7 +24,7 @@
         
         <!-- Section d'input -->
         <TextBox HorizontalAlignment="Left" Margin="143,408,0,0" TextWrapping="Wrap" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="611" Height="85"/>
-        <Button Content="File" HorizontalAlignment="Left" Margin="771,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
+        <Button Content="File" Command="{Binding CommandeSendFile}" HorizontalAlignment="Left" Margin="771,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
         <Button Content="Send" Command="{Binding CommandeSendMessage}" HorizontalAlignment="Left" Margin="771,408,0,0" VerticalAlignment="Top" Width="101" Height="42"/>
         <Button Content="Directory" HorizontalAlignment="Left" Margin="824,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
 
