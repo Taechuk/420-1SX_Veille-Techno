@@ -110,6 +110,8 @@ _Introduction - Ollama_. (2025). Ollama.com; Ollama. https://docs.ollama.com/api
 
 Aspire. (2026). _Connect to Ollama_. Aspire. https://aspire.dev/integrations/ai/ollama/ollama-connect/
 
+_Getting started | OllamaSharp_. (2026). Github.io. https://awaescher.github.io/OllamaSharp/docs/getting-started.html
+
 *‌Introduction - Model Context Protocol*. (2025). Modelcontextprotocol.io; Model Context Protocol. https://modelcontextprotocol.io/docs/getting-started/intro
 
 alexwolfmsft. (2025, November 22). _Get started with .NET AI and MCP - .NET_. Microsoft.com. https://learn.microsoft.com/en-us/dotnet/ai/get-started-mcp
