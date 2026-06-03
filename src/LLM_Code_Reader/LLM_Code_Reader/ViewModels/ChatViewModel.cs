@@ -1,5 +1,6 @@
 ﻿using LLM_Code_Reader.Models;
 using LLM_Code_Reader.ViewModels.Commands;
+using Microsoft.Extensions.AI;
 using OllamaSharp;
 using System;
 using System.Collections.Generic;
@@ -41,13 +42,19 @@ namespace LLM_Code_Reader.ViewModels
 
             await Connector.SetupModel();
 
-            
+
             if (Connector.Available)
             {
                 Messages.Clear();
                 Messages.Add(new Message($"Model {_model} is ready to use.", "System"));
 
                 Conversation = Connector.CreateChat();
+                var response = string.Empty;
+                await foreach (var token in Conversation.SendAsync("")) //attente de réponse
+                {
+                    response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                }
+                Messages.Add(new Message(response, Connector.Model)); //message initial du bot
             }
             else
             {
@@ -60,20 +67,20 @@ namespace LLM_Code_Reader.ViewModels
         {
             if (Conversation == null) return;
             Messages.Add(new Message(Content, "User"));
-            string sentContent = Content;
-            Content = string.Empty;
-            Thinking = true;
-            Messages.Add(new Message("Thinking...", "System"));
+            string sentContent = Content; //save l'input pour l'envoyer
+            Content = string.Empty; //clear l'input
+            Thinking = true; //empeche d'envoyer plusieurs messages
+            Messages.Add(new Message("Thinking...", "System")); //action en cours
 
             string response = string.Empty;
-            await foreach(var token in Conversation.SendAsync(sentContent))
+            await foreach(var token in Conversation.SendAsync(sentContent)) //attente de réponse
             {
-                response += token;
+                response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
             }
-            Messages.RemoveAt(Messages.Count - 1);
-            Messages.Add(new Message(response, Connector.Model));
+            Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+            Messages.Add(new Message(response, Connector.Model)); //message du bot
 
-            Thinking = false;
+            Thinking = false; //le user peut continuer
 
         }
 
