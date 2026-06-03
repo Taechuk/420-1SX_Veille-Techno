@@ -23,13 +23,13 @@
         </ListBox>
         
         <!-- Section d'input -->
-        <TextBox HorizontalAlignment="Left" Margin="143,408,0,0" TextWrapping="Wrap" Text="{Binding Content}" VerticalAlignment="Top" Width="611" Height="85"/>
+        <TextBox HorizontalAlignment="Left" Margin="143,408,0,0" TextWrapping="Wrap" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="611" Height="85"/>
         <Button Content="File" HorizontalAlignment="Left" Margin="771,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
         <Button Content="Send" Command="{Binding CommandeSendMessage}" HorizontalAlignment="Left" Margin="771,408,0,0" VerticalAlignment="Top" Width="101" Height="42"/>
         <Button Content="Directory" HorizontalAlignment="Left" Margin="824,459,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.294,0.367" Width="48" Height="34"/>
 
         <!-- Options/Controles -->
-        <ComboBox HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top" Width="120"/>
+        <ComboBox ItemsSource="{Binding ModelList}" SelectedItem="{Binding SelectedModel}" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top" Width="120"/>
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="120" Command="{Binding CommandeCreateConnector}"/>
         <Button Content="End" HorizontalAlignment="Left" Margin="10,132,0,0" VerticalAlignment="Top" Width="120"/>
 

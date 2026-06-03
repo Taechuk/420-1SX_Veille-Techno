@@ -14,7 +14,11 @@ namespace LLM_Code_Reader.ViewModels
         private string _model = "cogito:3b";
         private string _content;
 
+        private List<string> _modelList;
+
         public ObservableCollection<Message> Messages { get; set; }
+        public List<string> ModelList { get => _modelList; set { _modelList = value; OnPropertyChanged(nameof(ModelList)); } }
+
         public Chat? Conversation { get; set; }
         public OllamaConnector? Connector { get; set; }
 
@@ -26,9 +30,10 @@ namespace LLM_Code_Reader.ViewModels
 
         public ChatViewModel()
         {
+            ModelList = ["cogito:3b", "cogito:8b", "phi4-mini", "qwen3.5", "qwen3.6"];
             Messages = new ObservableCollection<Message>();
             Messages.Add(new Message("Currently Offline", "System"));
-
+            Content = string.Empty;
             Thinking = false;
 
             CommandeCreateConnector = new AsyncCommand(CreateConnector, null);
@@ -49,11 +54,14 @@ namespace LLM_Code_Reader.ViewModels
                 Messages.Add(new Message($"Model {_model} is ready to use.", "System"));
 
                 Conversation = Connector.CreateChat();
+
+                Messages.Add(new Message("Thinking...", "System")); //action en cours
                 var response = string.Empty;
                 await foreach (var token in Conversation.SendAsync("")) //attente de réponse
                 {
                     response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                 }
+                Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
                 Messages.Add(new Message(response, Connector.Model)); //message initial du bot
             }
             else
