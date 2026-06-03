@@ -30,12 +30,19 @@ namespace LLM_Code_Reader.Models
                       // le prompt à été auto-complete par copilot
         }
 
-        public Chat createChat()
+        public Chat CreateChat()
         {
-            return new Chat(client, _prompt);
+            return new Chat(client, _prompt)
+            { 
+                Options = new RequestOptions
+                {
+                    Temperature = 0.05f, // contrôle la créativité des réponses, plus bas = plus précis
+                    TopP = 0.1f, // contrôle la diversité des réponses, plus bas = plus conservateur
+                }
+            };
         }
 
-        public async Task setupModel()
+        public async Task SetupModel()
         {
             _available = await IsPulled(_model);
 
