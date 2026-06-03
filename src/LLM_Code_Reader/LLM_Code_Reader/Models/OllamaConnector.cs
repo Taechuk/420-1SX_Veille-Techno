@@ -3,6 +3,7 @@ using OllamaSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows;
 
 namespace LLM_Code_Reader.Models
 {
@@ -52,13 +53,17 @@ namespace LLM_Code_Reader.Models
             }
             else
             {
-                await foreach (var progress in client.PullModelAsync(_model))
+                MessageBoxResult result = MessageBox.Show("Le modèle n'est pas présent sur la machine. Êtes-vous sur de vouloir l'installer? \n(Assurez-vous d'avoir assez d'espace et une connection stable.)", "Installer le modèle?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
                 {
-                    if (progress != null) //pull le modèle pour qu'il soit disponible
-                        Console.WriteLine($"Pulling model {_model}: [Ollama Download] {progress.Status} -> {progress.Completed} / {progress.Total}%");
-                }
+                    await foreach (var progress in client.PullModelAsync(_model))
+                    {
+                        if (progress != null) //pull le modèle pour qu'il soit disponible
+                            Console.WriteLine($"Pulling model {_model}: [Ollama Download] {progress.Status} -> {progress.Completed} / {progress.Total}%");
+                    }
 
-                Console.WriteLine($"[Ollama] {_model} downloaded successfully!");
+                    Console.WriteLine($"[Ollama] {_model} downloaded successfully!");
+                }
             }
         }
 
