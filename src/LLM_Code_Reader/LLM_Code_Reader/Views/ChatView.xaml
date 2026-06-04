@@ -31,7 +31,7 @@
         <!-- Options/Controles -->
         <ComboBox ItemsSource="{Binding ModelList}" SelectedItem="{Binding SelectedModel}" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top" Width="120"/>
         <Button Content="Start" HorizontalAlignment="Left" Margin="10,96,0,0" VerticalAlignment="Top" Width="120" Command="{Binding CommandeCreateConnector}"/>
-        <Button Content="End" HorizontalAlignment="Left" Margin="10,132,0,0" VerticalAlignment="Top" Width="120"/>
+        <Button Content="End" HorizontalAlignment="Left" Margin="10,132,0,0" VerticalAlignment="Top" Width="120" Command="{Binding CommandeStopChat}"/>
 
     </Grid>
 </UserControl>

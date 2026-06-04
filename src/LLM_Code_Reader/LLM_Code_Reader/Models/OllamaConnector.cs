@@ -1,5 +1,6 @@
 ﻿using OllamaSharp;
 using OllamaSharp.Models;
+using OllamaSharp.Models.Chat;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -59,7 +60,7 @@ namespace LLM_Code_Reader.Models
                     await foreach (var progress in client.PullModelAsync(_model))
                     {
                         if (progress != null) //pull le modèle pour qu'il soit disponible
-                            Console.WriteLine($"Pulling model {_model}: [Ollama Download] {progress.Status} -> {progress.Completed} / {progress.Total}%");
+                            Console.WriteLine($"Pulling model {_model}: [Ollama Download] {progress.Status} -> {progress.Completed} / {progress.Total}%"); //à trouver comment afficher le progrès
                     }
 
                     Console.WriteLine($"[Ollama] {_model} downloaded successfully!");
@@ -70,6 +71,19 @@ namespace LLM_Code_Reader.Models
             }
         }
 
+        public async Task StopModel()
+        {
+            if (Available)
+            {   
+                var request = new ChatRequest { Model = _model, KeepAlive = "0" }; //KeepAlive = 0 pour arrêter le modèle après la requete
+                await foreach (var response in client.ChatAsync(request))
+                {
+                    if (response != null)
+                    Console.WriteLine($"Stopping model {_model}: [Ollama Stop]");
+                }
+                
+            }
+        }
 
 
         public async Task<bool> IsPulled(string model)

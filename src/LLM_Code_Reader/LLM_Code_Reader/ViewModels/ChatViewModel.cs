@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Windows;
 
 namespace LLM_Code_Reader.ViewModels
 {
@@ -41,6 +42,7 @@ namespace LLM_Code_Reader.ViewModels
             CommandeCreateConnector = new AsyncCommand(CreateConnector, null);
             CommandeSendMessage = new AsyncCommand(SendMessage, (obj) => { return Conversation != null && !Thinking && !Content.IsWhiteSpace(); });
             CommandeSendFile = new AsyncCommand(SendFile, (obj) => { return Conversation != null && !Thinking; });
+            CommandeStopChat = new AsyncCommand(StopChat, (obj) => { return Conversation != null; });
         }
 
         public async Task CreateConnector(object? obj)
@@ -85,7 +87,7 @@ namespace LLM_Code_Reader.ViewModels
 
             string response = string.Empty;
 
-            using(var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5))) //timeout de 3 minutes pour éviter les réponses infinies
+            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5))) //timeout de 3 minutes pour éviter les réponses infinies
             {
                 try
                 {
@@ -105,7 +107,7 @@ namespace LLM_Code_Reader.ViewModels
                     Messages.Add(new Message("Une erreur est survenue.", "System")); //message du système
                 }
             }
-                
+
             Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
             Messages.Add(new Message(response, Connector.Model)); //message du bot
 
@@ -154,8 +156,22 @@ namespace LLM_Code_Reader.ViewModels
             }
         }
 
+        public async Task StopChat(object? obj)
+        {
+            if (Conversation == null) return;
+            MessageBoxResult result = MessageBox.Show("Êtes-vous sur de vouloir arrêter le modèle?", "Arrêter le modèle?", MessageBoxButton.YesNo, MessageBoxImage.Warning); //confirmation
+            if (result == MessageBoxResult.Yes)
+            {
+                await Connector.StopModel(); //arrêt du modèle
+                Messages.Add(new Message($"Model {Connector.Model} has been stopped.", "System"));
+                Conversation = null; //chat terminé
+                Thinking = false;
+            }
+        }
+
         public AsyncCommand CommandeCreateConnector { get; set; }
         public AsyncCommand CommandeSendMessage { get; set; }
         public AsyncCommand CommandeSendFile { get; set; }
+        public AsyncCommand CommandeStopChat { get; set; }
     }
 }
