@@ -63,6 +63,9 @@ namespace LLM_Code_Reader.Models
                     }
 
                     Console.WriteLine($"[Ollama] {_model} downloaded successfully!");
+
+                    _available = await IsPulled(_model); //vérification que le modèle est bien présent après le téléchargement
+                    client.SelectedModel = _model;
                 }
             }
         }

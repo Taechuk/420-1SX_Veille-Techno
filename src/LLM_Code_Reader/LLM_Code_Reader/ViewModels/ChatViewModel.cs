@@ -60,7 +60,7 @@ namespace LLM_Code_Reader.ViewModels
 
                 Messages.Add(new Message("Thinking...", "System")); //action en cours
                 var response = string.Empty;
-                await foreach (var token in Conversation.SendAsync("")) //attente de réponse
+                await foreach (var token in Conversation.SendAsync("Début de la conversation, dis bonjour et présente-toi.")) //attente de réponse
                 {
                     response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                 }
@@ -84,10 +84,28 @@ namespace LLM_Code_Reader.ViewModels
             Messages.Add(new Message("Thinking...", "System")); //action en cours
 
             string response = string.Empty;
-            await foreach (var token in Conversation.SendAsync(sentContent)) //attente de réponse
+
+            using(var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5))) //timeout de 3 minutes pour éviter les réponses infinies
             {
-                response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                try
+                {
+                    await foreach (var token in Conversation.SendAsync(sentContent, cts.Token)) //attente de réponse
+                    {
+                        response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                    Messages.Add(new Message("Le temps de réponse est échu, veuillez réessayer.", "System")); //message du système
+                }
+                catch (Exception ex)
+                {
+                    Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                    Messages.Add(new Message("Une erreur est survenue.", "System")); //message du système
+                }
             }
+                
             Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
             Messages.Add(new Message(response, Connector.Model)); //message du bot
 
@@ -110,9 +128,25 @@ namespace LLM_Code_Reader.ViewModels
                 Thinking = true; //empeche d'envoyer plusieurs messages
                 Messages.Add(new Message("Thinking...", "System")); //action en cours
                 string response = string.Empty;
-                await foreach (var token in Conversation.SendAsync(sentContent)) //attente de réponse
+                using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3))) //timeout de 3 minutes pour éviter les réponses infinies
                 {
-                    response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                    try
+                    {
+                        await foreach (var token in Conversation.SendAsync(sentContent, cts.Token)) //attente de réponse
+                        {
+                            response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                        Messages.Add(new Message("Le temps de réponse est échu, veuillez réessayer.", "System")); //message du système
+                    }
+                    catch (Exception ex)
+                    {
+                        Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                        Messages.Add(new Message("Une erreur est survenue.", "System")); //message du système
+                    }
                 }
                 Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
                 Messages.Add(new Message(response, Connector.Model)); //message du bot
