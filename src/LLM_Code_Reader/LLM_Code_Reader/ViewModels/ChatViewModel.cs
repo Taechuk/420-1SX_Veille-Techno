@@ -45,7 +45,7 @@ namespace LLM_Code_Reader.ViewModels
             Conversation = null;
             Thinking = false;
 
-            CommandeCreateConnector = new AsyncCommand(CreateConnector, null);
+            CommandeCreateConnector = new AsyncCommand(CreateConnector, (obj) => { return Conversation == null; });
             CommandeSendMessage = new AsyncCommand(SendMessage, (obj) => { return Conversation != null && !Thinking && !Content.IsWhiteSpace(); });
             CommandeSendFile = new AsyncCommand(SendFile, (obj) => { return Conversation != null && !Thinking; });
             CommandeSendFolder = new AsyncCommand(SendFolder, (obj) => { return Conversation != null && !Thinking && HighCtx; });
@@ -62,18 +62,14 @@ namespace LLM_Code_Reader.ViewModels
 
             if (Connector.Available)
             {
-                Messages.Clear();
-                Messages.Add(new Message($"{_model} est prêt.", "System"));
-
                 Conversation = Connector.CreateChat(HighCtx ? "strong" : "weak"); //création du chat avec contexte requis selon la selection
 
-                Messages.Add(new Message("Hmmmm...", "System")); //action en cours
                 var response = string.Empty;
                 await foreach (var token in Conversation.SendAsync("Début de la conversation, dis bonjour et présente-toi.")) //attente de réponse
                 {
                     response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                 }
-                Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
+                Messages.Clear();
                 Messages.Add(new Message(response, Connector.Model)); //message initial du bot
             }
             else
@@ -172,7 +168,14 @@ namespace LLM_Code_Reader.ViewModels
             {
                 string folderName = openFolderDialog.FolderName;
 
-                var files = Directory.GetFiles(folderName, "*.*", SearchOption.AllDirectories);
+                var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "node_modules", "bin", "obj", ".git", ".vs" }; //dossiers à exclure pour éviter d'envoyer trop de données inutiles
+
+                var files = Directory.EnumerateFiles(folderName, "*.*", SearchOption.AllDirectories).Where(file =>
+                {
+                    string[] segments = file.Split(Path.DirectorySeparatorChar);
+                    bool isExcluded = segments.Any(segment => excludedDirs.Contains(segment));
+                    return !isExcluded;
+                });
                 var fileContents = new StringBuilder();
                 fileContents.AppendLine($"Voici le contenu du dossier {Path.GetFileName(folderName)} :");
 
@@ -185,7 +188,7 @@ namespace LLM_Code_Reader.ViewModels
 
                     fileContents.AppendLine($"\nFichier {fileCount}: {relativePath}\n```\n{content}\n```"); //contenu du fichier à envoyer
 
-                    if (fileContents.Length > Conversation.Options.NumCtx - 1000) //limite de tokens pour éviter d'envoyer trop de données à la fois
+                    if (fileContents.Length > Conversation.Options.NumCtx * 3) //limite de tokens pour éviter d'envoyer trop de données à la fois
                     {
                         MessageBox.Show($"Le contenu du dossier est trop volumineux pour être envoyé. Veuillez sélectionner un dossier avec moins de fichiers ou des fichiers plus petits.", "Dossier trop volumineux", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
