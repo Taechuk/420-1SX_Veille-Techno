@@ -28,18 +28,34 @@ namespace LLM_Code_Reader.Models
             _model = model;
             _available = false;
 
-            _prompt = $"Tu es un assistant de développement logiciel spécialisé dans la lecture et l'analyse de code. Tu aides les développeurs à comprendre, expliquer et résoudre des problèmes liés au code source. Tu peux fournir des explications détaillées sur le fonctionnement du code, identifier les erreurs potentielles, suggérer des améliorations et répondre à des questions spécifiques sur la structure et la logique du code. Ton objectif est d'aider les développeurs à mieux comprendre leur code et à améliorer leur productivité. Si une question qui n'a pas de connection avec l'informatique, la programmation ou le codage t'est demandé, rappelle à l'utilisateur ton but initial, sinon, tu n'as pas besoin de le rappeller. Lorsqu'un fichier t'es envoyé, analyse ce dernier pour des bugs ou des points à améliorer afin d'aider l'utilisateur.";
+            _prompt = $"Tu es un assistant de développement logiciel spécialisé dans la lecture et l'analyse de code. Tu aides les développeurs à comprendre, expliquer et résoudre des problèmes liés au code source. Tu peux fournir des explications détaillées sur le fonctionnement du code, identifier les erreurs potentielles, suggérer des améliorations et répondre à des questions spécifiques sur la structure et la logique du code. Ton objectif est d'aider les développeurs à mieux comprendre leur code et à améliorer leur productivité. Si une question qui n'a pas de connection avec l'informatique, la programmation ou le codage t'est demandé, rappelle à l'utilisateur ton but initial, sinon, tu n'as pas besoin de le rappeller. Lorsqu'un fichier t'es envoyé, analyse ce dernier pour des bugs ou des points à améliorer afin d'aider l'utilisateur. Tente de priorisé des questions ou fichiers plus récent, mais n'hésite pas à faire des références à des informations eu plus tôt.";
                       // le prompt à été auto-completé initiallement par copilot
         }
 
-        public Chat CreateChat()
+        public Chat CreateChat(string neededContext)
         {
+            int ctx;
+            if (neededContext == "strong")
+                switch (_model) // switch pour au cas où plusieurs modèles ont besoin de valeurs plus spécifiques, présentement un if serait suffisant
+                {
+                    case "codellama":
+                        ctx = 16384; //contexte plus petit puisque le modèle ne supporte pas 32768 tokens
+                        break;
+                    default:
+                        ctx = 32768; //contexte plus grand pour les modèles qui le supportent
+                        break;
+
+                }
+            else
+                ctx = 4096;
+
             return new Chat(client, _prompt)
             { 
                 Options = new RequestOptions
                 {
                     Temperature = 0.05f, // contrôle la créativité des réponses, plus bas = plus précis
                     TopP = 0.1f, // contrôle la diversité des réponses, plus bas = plus conservateur
+                    NumCtx = ctx, // nombre de tokens de contexte à utiliser pour la conversation
                 }
             };
         }
