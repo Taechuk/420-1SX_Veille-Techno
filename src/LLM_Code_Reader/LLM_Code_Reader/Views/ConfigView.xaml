@@ -1,0 +1,21 @@
+﻿<Window x:Class="LLM_Code_Reader.Views.ConfigView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LLM_Code_Reader.Views"
+        xmlns:viewmodels="clr-namespace:LLM_Code_Reader.ViewModels"
+        mc:Ignorable="d"
+        Title="ConfigView" Height="200" Width="300">
+    <d:Window.DataContext>
+        <x:Type TypeName="viewmodels:ConfigViewModel" />
+    </d:Window.DataContext>
+
+    <Grid>
+        <Label Content="Clé API Context7:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Margin="116,14,0,0" TextWrapping="Wrap" Text="{Binding Key}" VerticalAlignment="Top" Width="120" Height="22"/>
+        <Label Content="La clé aide à améliorer la performance du modèle.&#xD;&#xA;Elle n'est pas requise." HorizontalAlignment="Left" Margin="10,58,0,0" VerticalAlignment="Top" Height="56"/>
+        <Button Content="Sauvegarder" Command="{Binding CommandeSaveKey}" HorizontalAlignment="Left" Margin="176,119,0,0" VerticalAlignment="Top" Height="27" Width="84"/>
+
+    </Grid>
+</Window>

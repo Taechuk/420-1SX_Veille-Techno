@@ -4,12 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LLM_Code_Reader.Views"
-        xmlns:viewmodels="clr-namespace:LLM_Code_Reader.ViewModels"
+        xmlns:viewmodels="clr-namespace:LLM_Code_Reader.ViewModels" xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
-        Title="Code Reader" Height="570" Width="900">
+        Title="Code Reader" Height="870" Width="1400" ResizeMode="NoResize">
     <d:Window.DataContext>
         <x:Type TypeName="viewmodels:MainViewModel" />
     </d:Window.DataContext>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding CommandeClosing}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Window.Resources>
         <DataTemplate DataType="{x:Type viewmodels:ChatViewModel}">
@@ -24,7 +30,7 @@
         </Grid.RowDefinitions>
 
         <Menu Width="{Binding ElementName=win, Path=Width}">
-            <MenuItem Header="Configuration"/>
+            <MenuItem Header="Configuration" Command="{Binding CommandeOpenConfig}"/>
         </Menu>
 
 

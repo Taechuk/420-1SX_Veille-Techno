@@ -6,6 +6,7 @@ using OllamaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -14,7 +15,7 @@ namespace LLM_Code_Reader.ViewModels
 {
     class ChatViewModel : BaseViewModel
     {
-        private string _model = "cogito:3b";
+        private string _model = "qwen2.5-coder";
         private string _content;
         private Chat? _convo;
         private bool _highCtx = false;
@@ -38,7 +39,7 @@ namespace LLM_Code_Reader.ViewModels
 
         public ChatViewModel()
         {
-            ModelList = ["cogito:3b", "cogito:8b", "phi4-mini", "codellama", "qwen2.5-coder", "qwen3.5", "qwen3.6"];
+            ModelList = ["qwen2.5-coder", "cogito:3b", "cogito:8b", "phi4-mini", "codellama", "qwen3.5", "qwen3.6"];
             Messages = new ObservableCollection<Message>();
             Messages.Add(new Message("Hors ligne", "System"));
             Content = string.Empty;
@@ -62,7 +63,7 @@ namespace LLM_Code_Reader.ViewModels
 
             if (Connector.Available)
             {
-                Conversation = Connector.CreateChat(HighCtx ? "strong" : "weak"); //création du chat avec contexte requis selon la selection
+                Conversation = await Connector.CreateChat(HighCtx ? "strong" : "weak"); //création du chat avec contexte requis selon la selection
 
                 var response = string.Empty;
                 await foreach (var token in Conversation.SendAsync("Début de la conversation, dis bonjour et présente-toi.")) //attente de réponse
@@ -94,7 +95,7 @@ namespace LLM_Code_Reader.ViewModels
             {
                 try
                 {
-                    await foreach (var token in Conversation.SendAsync(sentContent, cts.Token)) //attente de réponse
+                    await foreach (var token in Conversation.SendAsync(sentContent, tools: Connector.McpTools, cancellationToken: cts.Token)) //attente de réponse
                     {
                         response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                     }
@@ -110,6 +111,7 @@ namespace LLM_Code_Reader.ViewModels
                     Messages.Add(new Message($"Une erreur est survenue. {ex}", "System")); //message du système
                 }
             }
+            
 
             Messages.RemoveAt(Messages.Count - 1); //enlever le message du système
             Messages.Add(new Message(response, Connector.Model)); //message du bot
@@ -127,17 +129,18 @@ namespace LLM_Code_Reader.ViewModels
             {
                 string fileContent = await File.ReadAllTextAsync(openFileDialog.FileName);
 
-                Messages.Add(new Message($"Fichier {openFileDialog.SafeFileName} envoyé.", "User"));
+                Messages.Add(new Message($"{Content}\nFichier {openFileDialog.SafeFileName} envoyé.", "User"));
 
-                string sentContent = $"Voici le contenu du fichier {openFileDialog.SafeFileName} :\n```\n{fileContent}```"; //contenu du fichier à envoyer
+                string sentContent = $"{Content}\nVoici le contenu du fichier {openFileDialog.SafeFileName} :\n```\n{fileContent}```"; //contenu du fichier à envoyer
                 Thinking = true; //empeche d'envoyer plusieurs messages
+                Content = string.Empty; //clear l'input
                 Messages.Add(new Message("Hmmmm...", "System")); //action en cours
                 string response = string.Empty;
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3))) //timeout de 3 minutes pour éviter les réponses infinies
                 {
                     try
                     {
-                        await foreach (var token in Conversation.SendAsync(sentContent, cts.Token)) //attente de réponse
+                        await foreach (var token in Conversation.SendAsync(sentContent, tools: Connector.McpTools, cancellationToken: cts.Token)) //attente de réponse
                         {
                             response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                         }
@@ -168,7 +171,7 @@ namespace LLM_Code_Reader.ViewModels
             {
                 string folderName = openFolderDialog.FolderName;
 
-                var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "node_modules", "bin", "obj", ".git", ".vs" }; //dossiers à exclure pour éviter d'envoyer trop de données inutiles
+                var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "node_modules", "bin", "obj", ".git", ".vs", ".gitignore" }; //dossiers à exclure pour éviter d'envoyer trop de données inutiles
 
                 var files = Directory.EnumerateFiles(folderName, "*.*", SearchOption.AllDirectories).Where(file =>
                 {
@@ -177,7 +180,7 @@ namespace LLM_Code_Reader.ViewModels
                     return !isExcluded;
                 });
                 var fileContents = new StringBuilder();
-                fileContents.AppendLine($"Voici le contenu du dossier {Path.GetFileName(folderName)} :");
+                fileContents.AppendLine($"{Content}\nVoici le contenu du dossier {Path.GetFileName(folderName)} :");
 
                 int fileCount = 0;
                 foreach (var file in files)
@@ -202,16 +205,17 @@ namespace LLM_Code_Reader.ViewModels
                 }
 
                 fileContents.AppendLine("Fin du dossier.\n Peux-tu me faire une analyse globale de ce code, voir si il y a des bugs à regler ou qu'est-ce qui pourrait être amélioré?"); //indique la fin du contenu du dossier
-                Messages.Add(new Message($"Dossier {Path.GetFileName(folderName)} envoyé avec {fileCount} fichiers.", "User"));
+                Messages.Add(new Message($"{Content}\nDossier {Path.GetFileName(folderName)} envoyé avec {fileCount} fichiers.", "User"));
 
                 Thinking = true; //empeche d'envoyer plusieurs messages
+                Content = string.Empty; //clear l'input
                 Messages.Add(new Message("Hmmmm...", "System")); //action en cours
                 string response = string.Empty;
                 using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3))) //timeout de 3 minutes pour éviter les réponses infinies
                 {
                     try
                     {
-                        await foreach (var token in Conversation.SendAsync(fileContents.ToString(), cts.Token)) //attente de réponse
+                        await foreach (var token in Conversation.SendAsync(fileContents.ToString(), tools: Connector.McpTools, cancellationToken: cts.Token)) //attente de réponse
                         {
                             response += token; //tout mettre en un message vu que le token est envoyé sur plusieurs packets
                         }
