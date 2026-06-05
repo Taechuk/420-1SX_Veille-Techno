@@ -37,7 +37,8 @@ namespace LLM_Code_Reader.ViewModels
 
         public async Task Closing(object? obj)
         { // fermer le modèle avant de fermer pour libérer la mémoire
-            await _chatViewModel.Connector.StopModel();
+            if (_chatViewModel.Connector != null)
+                await _chatViewModel.Connector.StopModel();
         }
 
         public RelayCommand CommandeOpenConfig { get; set; }
