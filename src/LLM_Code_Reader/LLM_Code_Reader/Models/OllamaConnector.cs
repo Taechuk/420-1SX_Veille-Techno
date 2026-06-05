@@ -32,7 +32,7 @@ namespace LLM_Code_Reader.Models
             _model = model;
             _available = false;
 
-            _prompt = $"Tu es un assistant de développement logiciel spécialisé dans la lecture et l'analyse de code. Tu aides les développeurs à comprendre, expliquer et résoudre des problèmes liés au code source. Tu peux fournir des explications détaillées sur le fonctionnement du code, identifier les erreurs potentielles, suggérer des améliorations et répondre à des questions spécifiques sur la structure et la logique du code. Ton objectif est d'aider les développeurs à mieux comprendre leur code et à améliorer leur productivité. Si une question qui n'a pas de connection avec l'informatique, la programmation ou le codage t'est demandé, rappelle à l'utilisateur ton but initial, sinon, tu n'as pas besoin de le rappeller. Lorsqu'un fichier t'es envoyé, analyse ce dernier pour des bugs ou des points à améliorer afin d'aider l'utilisateur. Tente de priorisé des questions ou fichiers plus récent, mais n'hésite pas à faire des références à des informations eu plus tôt. Priorise l'utilisation de Context7 si il est disponible au début de l'analyse pour mettre à jour des connaissances, sinon, utilise tes propres connaissances.";
+            _prompt = $"Tu es un assistant de développement logiciel spécialisé dans la lecture et l'analyse de code. Tu aides les développeurs à comprendre, expliquer et résoudre des problèmes liés au code source. Tu peux fournir des explications détaillées sur le fonctionnement du code, identifier les erreurs potentielles, suggérer des améliorations et répondre à des questions spécifiques sur la structure et la logique du code. Ton objectif est d'aider les développeurs à mieux comprendre leur code et à améliorer leur productivité. Si une question qui n'a pas de connection avec l'informatique, la programmation ou le codage t'est demandé, rappelle à l'utilisateur ton but initial, sinon, tu n'as pas besoin de le rappeller. Lorsqu'un fichier t'es envoyé, analyse ce dernier pour des bugs ou des points à améliorer afin d'aider l'utilisateur. Tente de priorisé des questions ou fichiers plus récent, mais n'hésite pas à faire des références à des informations eu plus tôt. Priorise l'utilisation de Context7 si il est disponible au début de l'analyse pour mettre à jour des connaissances et GoogleSearch si tu ne trouve rien, sinon, utilise tes propres connaissances. Utilise SequentialThinking pour bien organiser l'analyse.";
                       // le prompt à été auto-completé initiallement par copilot
         }
 
@@ -40,16 +40,34 @@ namespace LLM_Code_Reader.Models
         {
             try
             {
-                var mcpConfig = new McpServerConfiguration
+                var configs = new List<McpServerConfiguration>
                 {
-                    Name = "Context7",
-                    TransportType = McpServerTransportType.Stdio,
-                    Command = "npx",
-                    Arguments = ["-y", "@upstash/context7-mcp", "--api-key", LLM_Code_Reader.Properties.Settings.Default.API_KEY],
+                new McpServerConfiguration // setup Context7
+                    {
+                        Name = "Context7",
+                        TransportType = McpServerTransportType.Stdio,
+                        Command = "cmd",
+                        Arguments = ["/c", "npx", "-y", "@upstash/context7-mcp", "--api-key", LLM_Code_Reader.Properties.Settings.Default.API_KEY],
+                    },
+                new McpServerConfiguration // setup SequentialThinking
+                    {
+                        Name = "SequentialThinking",
+                        TransportType = McpServerTransportType.Stdio,
+                        Command = "cmd",
+                        Arguments = ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+                    },
+                new McpServerConfiguration // setup GoogleSearch
+                    {
+                        Name = "GoogleSearch",
+                        TransportType = McpServerTransportType.Stdio,
+                        Command = "cmd",
+                        Arguments = ["/c", "npx", "-y", "@mcp-server/google-search-mcp"]
+                    }
+
                 };
 
                 // L'extension convertit directement les outils au format Ollama
-                _mcpTools = await Tools.GetFromMcpServers([mcpConfig]);
+                _mcpTools = await Tools.GetFromMcpServers(configs.ToArray());
                 Trace.WriteLine($"[MCP] Context7 chargé avec {_mcpTools.Count()} outils.");
             }
             catch (Exception ex)
