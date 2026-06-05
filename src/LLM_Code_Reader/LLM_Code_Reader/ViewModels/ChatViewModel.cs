@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows;
 
@@ -137,7 +138,7 @@ namespace LLM_Code_Reader.ViewModels
 
                 string sentContent = $"{Content}\nVoici le contenu du fichier {openFileDialog.SafeFileName} :\n```\n{fileContent}```"; //contenu du fichier à envoyer
 
-                if (sentContent.Length > Conversation.Options.NumCtx * 3) //limite de tokens pour éviter d'envoyer trop de données à la fois
+                if (sentContent.Length > Conversation.Options.NumCtx * 3.3) //limite de tokens pour éviter d'envoyer trop de données à la fois
                 {
                     MessageBox.Show($"Le contenu du fichier est trop volumineux pour être envoyé. Veuillez sélectionner un fichier plus petits.", "Dossier trop volumineux", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -186,7 +187,7 @@ namespace LLM_Code_Reader.ViewModels
 
                 var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {  //LISTE FAIT PAR GEMINI, exclus les dossiers et fichiers qui ne sont généralement pas importants pour l'analyse de code et qui peuvent être très volumineux ou contenir des données sensibles
                     // --- DOSSIERS ET FICHIERS DE CONFIG LOGICIELS ---
-                    "node_modules", "bin", "obj", ".git", ".vs", ".gitignore", 
+                    "node_modules", "bin", "obj", ".git", ".vs", ".gitignore", "__pycache__",
 
                     // --- IMAGES ET DESIGN (Aucun risque de code) ---
                     ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".ico", ".tiff", ".psd", ".ai",
@@ -209,6 +210,9 @@ namespace LLM_Code_Reader.ViewModels
 
                 var files = Directory.EnumerateFiles(folderName, "*.*", SearchOption.AllDirectories).Where(file => //ignore les fichiers/dossiers exclus
                 {
+                    string extension = Path.GetExtension(file);
+                    if(excludedDirs.Contains(extension)) return false;
+
                     string[] segments = file.Split(Path.DirectorySeparatorChar);
                     bool isExcluded = segments.Any(segment => excludedDirs.Contains(segment));
                     return !isExcluded;
@@ -225,7 +229,7 @@ namespace LLM_Code_Reader.ViewModels
 
                     fileContents.AppendLine($"\nFichier {fileCount}: {relativePath}\n```\n{content}\n```"); //contenu du fichier à envoyer
 
-                    if (fileContents.Length > Conversation.Options.NumCtx * 3) //limite de tokens pour éviter d'envoyer trop de données à la fois
+                    if (fileContents.Length > Conversation.Options.NumCtx * 3.3) //limite de tokens pour éviter d'envoyer trop de données à la fois
                     {
                         MessageBox.Show($"Le contenu du dossier est trop volumineux pour être envoyé. Veuillez sélectionner un dossier avec moins de fichiers ou des fichiers plus petits.", "Dossier trop volumineux", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
