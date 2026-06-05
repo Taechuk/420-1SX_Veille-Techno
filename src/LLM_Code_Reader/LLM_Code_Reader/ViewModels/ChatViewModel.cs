@@ -55,6 +55,12 @@ namespace LLM_Code_Reader.ViewModels
 
         public async Task CreateConnector(object? obj)
         {
+            if (Conversation != null) //fermeture de l'ancien modèle (ne devrait pas être appelé, mais au cas oû)
+            { 
+                await Connector.StopModel();
+                Conversation = null;    
+            }
+
             Connector = new OllamaConnector(_model);
             Messages.Add(new Message($"Le modèle {_model} est en cours de chargement. Cela peut prendre un peu de temps.", "System"));
 
@@ -91,7 +97,7 @@ namespace LLM_Code_Reader.ViewModels
 
             string response = string.Empty;
 
-            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5))) //timeout de 3 minutes pour éviter les réponses infinies
+            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3))) //timeout de 3 minutes pour éviter les réponses infinies
             {
                 try
                 {
@@ -129,9 +135,16 @@ namespace LLM_Code_Reader.ViewModels
             {
                 string fileContent = await File.ReadAllTextAsync(openFileDialog.FileName);
 
+                string sentContent = $"{Content}\nVoici le contenu du fichier {openFileDialog.SafeFileName} :\n```\n{fileContent}```"; //contenu du fichier à envoyer
+
+                if (sentContent.Length > Conversation.Options.NumCtx * 3) //limite de tokens pour éviter d'envoyer trop de données à la fois
+                {
+                    MessageBox.Show($"Le contenu du fichier est trop volumineux pour être envoyé. Veuillez sélectionner un fichier plus petits.", "Dossier trop volumineux", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                
                 Messages.Add(new Message($"{Content}\nFichier {openFileDialog.SafeFileName} envoyé.", "User"));
 
-                string sentContent = $"{Content}\nVoici le contenu du fichier {openFileDialog.SafeFileName} :\n```\n{fileContent}```"; //contenu du fichier à envoyer
                 Thinking = true; //empeche d'envoyer plusieurs messages
                 Content = string.Empty; //clear l'input
                 Messages.Add(new Message("Hmmmm...", "System")); //action en cours
