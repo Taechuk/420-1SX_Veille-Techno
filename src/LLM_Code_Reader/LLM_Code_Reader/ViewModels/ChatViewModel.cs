@@ -171,15 +171,36 @@ namespace LLM_Code_Reader.ViewModels
             {
                 string folderName = openFolderDialog.FolderName;
 
-                var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "node_modules", "bin", "obj", ".git", ".vs", ".gitignore" }; //dossiers à exclure pour éviter d'envoyer trop de données inutiles
+                var excludedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {  //LISTE FAIT PAR GEMINI, exclus les dossiers et fichiers qui ne sont généralement pas importants pour l'analyse de code et qui peuvent être très volumineux ou contenir des données sensibles
+                    // --- DOSSIERS ET FICHIERS DE CONFIG LOGICIELS ---
+                    "node_modules", "bin", "obj", ".git", ".vs", ".gitignore", 
 
-                var files = Directory.EnumerateFiles(folderName, "*.*", SearchOption.AllDirectories).Where(file =>
+                    // --- IMAGES ET DESIGN (Aucun risque de code) ---
+                    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".ico", ".tiff", ".psd", ".ai",
+
+                    // --- DOCUMENTS / BUREAUTIQUE ---
+                    ".pdf", ".docx", ".doc", ".xlsx", ".xls", ".pptx", ".ppt", ".odt", ".ods",
+
+                    // --- AUDIO / VIDÉO (Fichiers très lourds et inutiles pour un LLM) ---
+                    ".mp3", ".wav", ".flac", ".aac", ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv",
+
+                    // --- ARCHIVES / COMPRESSION ---
+                    ".zip", ".rar", ".7z", ".tar", ".gz", ".iso", ".dmg",
+
+                    // --- POLICES DE CARACTÈRES ---
+                    ".ttf", ".otf", ".woff", ".woff2", ".eot",
+
+                    // --- COMPILATIONS ET BINAIRES NATIFS ---
+                    ".exe", ".dll", ".so", ".dylib", ".bin", ".suo"
+                };  //la liste n'est pas exhaustive mais devrait couvrir la très grande majorité des cas d'utilisation normal
+
+                var files = Directory.EnumerateFiles(folderName, "*.*", SearchOption.AllDirectories).Where(file => //ignore les fichiers/dossiers exclus
                 {
                     string[] segments = file.Split(Path.DirectorySeparatorChar);
                     bool isExcluded = segments.Any(segment => excludedDirs.Contains(segment));
                     return !isExcluded;
                 });
-                var fileContents = new StringBuilder();
+                var fileContents = new StringBuilder(); //construction du message
                 fileContents.AppendLine($"{Content}\nVoici le contenu du dossier {Path.GetFileName(folderName)} :");
 
                 int fileCount = 0;
